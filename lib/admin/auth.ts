@@ -1,46 +1,41 @@
-import crypto from "crypto";
-
 const COOKIE_NAME = "wm_admin_session";
 
-/**
- * Minimal shared-password admin auth for the MVP. This is intentionally
- * simple: one password (ADMIN_PASSWORD) grants a signed session cookie.
- *
- * UPGRADE PATH: replace with per-admin accounts via Supabase Auth + a
- * `role = 'admin'` claim once more than one person needs admin access or
- * an audit trail of who changed what is required.
- */
 function getSecret() {
   return process.env.ADMIN_SESSION_SECRET || "insecure-default-change-me";
 }
 
-function sign(value: string) {
-  return crypto.createHmac("sha256", getSecret()).update(value).digest("hex");
+async function getHmacKey() {
+  const keyData = new TextEncoder().encode(getSecret());
+  return crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
 }
 
-export function createAdminSessionToken() {
+function bufferToHex(buffer: ArrayBuffer) {
+  return Array.from(new Uint8Array(buffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function sign(value: string) {
+  const key = await getHmacKey();
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
+  return bufferToHex(signature);
+}
+
+function timingSafeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
+export async function createAdminSessionToken() {
   const issuedAt = Date.now().toString();
-  return `${issuedAt}.${sign(issuedAt)}`;
+  return `${issuedAt}.${await sign(issuedAt)}`;
 }
 
-export function isValidAdminSessionToken(token: string | undefined | null) {
+export async function isValidAdminSessionToken(token: string | undefined | null) {
   if (!token) return false;
   const [issuedAt, signature] = token.split(".");
-  if (!issuedAt || !signature) return false;
-  const expected = sign(issuedAt);
-  if (signature.length !== expected.length) return false;
-  const valid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-  if (!valid) return false;
-
-  // Sessions expire after 12 hours.
-  const twelveHoursMs = 12 * 60 * 60 * 1000;
-  return Date.now() - Number(issuedAt) < twelveHoursMs;
-}
-
-export function checkAdminPassword(password: string) {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-  return password === expected;
-}
-
-export const ADMIN_COOKIE_NAME = COOKIE_NAME;
+  if (!issuedAt ||
