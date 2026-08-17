@@ -2,6 +2,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { listSubscribers } from "@/lib/admin/queries";
 import { pricing } from "@/lib/config/site-config";
 
+export const runtime = 'edge';
+
 export default async function AdminSubscribersPage({
   searchParams,
 }: {

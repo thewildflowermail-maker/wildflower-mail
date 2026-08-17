@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { newsletterSchema } from "@/lib/validation/schemas";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+export const runtime = 'edge';
+
 /**
  * Adds someone to the Wildflower Notes marketing list. This is the ONLY
  * place marketing consent should be granted from a standalone form — never

@@ -4,6 +4,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 
+export const runtime = 'edge';
+
 /**
  * Softer alternative to /api/account/cancel — pauses Stripe billing
  * collection (via `pause_collection`, which keeps the subscription and its

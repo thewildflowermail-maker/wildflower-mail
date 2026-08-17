@@ -4,6 +4,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 import { brand } from "@/lib/config/site-config";
 
+export const runtime = 'edge';
+
 export async function POST(request: Request) {
   const body = await request.json();
   const parsed = contactSchema.safeParse(body);

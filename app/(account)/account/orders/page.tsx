@@ -1,6 +1,8 @@
 import { AccountShell } from "@/components/account/AccountShell";
 import { getCurrentCustomer, getCustomerOrders } from "@/lib/account/queries";
 
+export const runtime = 'edge';
+
 export default async function AccountOrdersPage() {
   const { customer } = await getCurrentCustomer();
   const orders = customer ? await getCustomerOrders(customer.id) : [];

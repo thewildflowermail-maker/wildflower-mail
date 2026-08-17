@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe/client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+export const runtime = 'edge';
+
 /**
  * Creates a Stripe Billing Portal session for the signed-in customer, so
  * they can update payment methods or view invoices without Wildflower Mail

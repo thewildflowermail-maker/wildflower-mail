@@ -4,6 +4,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 import { isValidZip } from "@/lib/utils/format";
 
+export const runtime = 'edge';
+
 export async function PATCH(request: Request) {
   const supabase = createSupabaseServerClient();
   const {

@@ -3,6 +3,8 @@ import { AddressForm } from "@/components/account/AddressForm";
 import { getCurrentCustomer, getCustomerSubscription } from "@/lib/account/queries";
 import { operations } from "@/lib/config/site-config";
 
+export const runtime = 'edge';
+
 export default async function AccountAddressPage() {
   const { customer } = await getCurrentCustomer();
   const subscription = customer ? await getCustomerSubscription(customer.id) : null;

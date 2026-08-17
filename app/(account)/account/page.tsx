@@ -3,6 +3,8 @@ import { getCurrentCustomer, getCustomerSubscription, getCustomerGiftSubscriptio
 import { CancelMembershipButton } from "@/components/account/CancelMembershipButton";
 import { BillingPortalButton } from "@/components/account/BillingPortalButton";
 
+export const runtime = 'edge';
+
 export default async function AccountOverviewPage() {
   const { customer } = await getCurrentCustomer();
   if (!customer) {

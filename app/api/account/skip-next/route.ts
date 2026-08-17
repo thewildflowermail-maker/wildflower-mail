@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 
+export const runtime = 'edge';
+
 /**
  * The lightest-touch alternative to canceling: billing and the
  * subscription itself are untouched (no Stripe call needed) — this just

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+export const runtime = 'edge';
+
 function csvEscape(value: string | null | undefined) {
   const v = (value ?? "").toString();
   if (v.includes(",") || v.includes('"') || v.includes("\n")) {

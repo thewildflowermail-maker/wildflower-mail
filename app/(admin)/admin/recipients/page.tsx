@@ -1,6 +1,8 @@
 import { AdminShell } from "@/components/admin/AdminShell";
 import { listRecipientsWithAddresses } from "@/lib/admin/queries";
 
+export const runtime = 'edge';
+
 export default async function AdminRecipientsPage({
   searchParams,
 }: {

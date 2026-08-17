@@ -4,6 +4,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 
+export const runtime = 'edge';
+
 export async function POST() {
   const supabase = createSupabaseServerClient();
   const {

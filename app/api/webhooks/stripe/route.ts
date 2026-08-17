@@ -5,9 +5,14 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 import { brand } from "@/lib/config/site-config";
 
+// Cloudflare's adapter requires every dynamic route to run on the Edge
+// Runtime — this still works for Stripe signature verification because
+// wrangler.toml enables the nodejs_compat flag, which polyfills the
+// node:crypto functions the Stripe SDK uses under the hood.
+//
 // Route handlers receive the raw body via request.text(), which is required
 // for Stripe signature verification — do not use request.json() here.
-export const runtime = "nodejs";
+export const runtime = 'edge';
 
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");

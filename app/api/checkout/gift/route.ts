@@ -3,6 +3,8 @@ import { stripe } from "@/lib/stripe/client";
 import { giftCheckoutSchema } from "@/lib/validation/schemas";
 import { pricing } from "@/lib/config/site-config";
 
+export const runtime = 'edge';
+
 export async function POST(request: Request) {
   const body = await request.json();
   const parsed = giftCheckoutSchema.safeParse(body);
