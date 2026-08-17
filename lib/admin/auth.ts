@@ -38,4 +38,18 @@ export async function createAdminSessionToken() {
 export async function isValidAdminSessionToken(token: string | undefined | null) {
   if (!token) return false;
   const [issuedAt, signature] = token.split(".");
-  if (!issuedAt ||
+  if (!issuedAt || !signature) return false;
+  const expected = await sign(issuedAt);
+  if (!timingSafeEqual(signature, expected)) return false;
+
+  const twelveHoursMs = 12 * 60 * 60 * 1000;
+  return Date.now() - Number(issuedAt) < twelveHoursMs;
+}
+
+export function checkAdminPassword(password: string) {
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) return false;
+  return password === expected;
+}
+
+export const ADMIN_COOKIE_NAME = COOKIE_NAME;
