@@ -1,0 +1,377 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FCFAF5;
+  color: #302F2B;
+}
+
+/* Visible, high-contrast focus state for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #3E4636;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Utility: gentle fade-in used sparingly for section entrances */
+@keyframes gentleFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: gentleFadeIn 0.6s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up {
+    animation: none;
+  }
+}
+
+/* Prevent any horizontal overflow on small screens */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Artist's-Lens design tokens — WCAG AAA text, organic borders, warm     */
+/* shadows. Additive utilities; nothing existing was renamed or removed   */
+/* so no other component's classes need to change to keep working.       */
+/* ---------------------------------------------------------------------- */
+
+/* AAA-safe muted/secondary text (7:1+ against our paper backgrounds).
+   The sitewide default for secondary copy has been text-charcoal/65–80,
+   which measures 4.2–6.8:1 on paper/ivory/cream — comfortably AA, but
+   short of AAA's 7:1. charcoal at 85% opacity clears AAA on paper (8.08:1),
+   ivory (7.68:1) and cream (7.45:1); verified via the WCAG relative-
+   luminance formula, not eyeballed. Use `text-muted-aaa` wherever copy is
+   explicitly called out as needing the stricter AAA standard (form labels,
+   hints, error text) rather than retrofitting every /65–/80 usage sitewide. */
+.text-muted-aaa {
+  color: rgba(48, 47, 43, 0.85); /* charcoal @ 85% */
+}
+
+/* A gentler, all-sides deckled edge for small-to-medium cards (tactile
+   preview cards, badges) — softer and less dramatic than the full-bleed
+   .torn-top / .torn-bottom clip-paths used on hero paper elements. */
+.deckled-soft {
+  clip-path: polygon(
+    1.2% 4%, 3% 1%, 6% 3%, 9% 0.5%, 12% 3%, 16% 0.8%, 20% 2.6%, 25% 0.6%,
+    30% 2.4%, 36% 1%, 42% 2.8%, 50% 0.8%, 58% 2.6%, 66% 1%, 74% 2.8%,
+    82% 0.8%, 88% 2.6%, 94% 0.8%, 97% 3%, 98.8% 1%,
+    98.8% 96%, 97% 99%, 94% 97%, 88% 99.2%, 82% 97.4%, 74% 99%, 66% 97.2%,
+    58% 99%, 50% 97.4%, 42% 99.2%, 36% 97%, 30% 99%, 25% 97.4%, 20% 99.4%,
+    16% 97.2%, 12% 99%, 9% 96.5%, 6% 99%, 3% 97%, 1.2% 96%
+  );
+}
+
+/* Warm-toned small shadow — pairs with Tailwind's shadow-sm on cards that
+   sit directly on a paper/ivory field, so the shadow reads as soft light
+   through paper rather than a cool default gray drop-shadow. */
+.shadow-warm-sm {
+  box-shadow: 0 1px 2px rgba(185, 120, 94, 0.08), 0 3px 8px -4px rgba(62, 70, 54, 0.16);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Brand-world texture & motion system                                    */
+/* ---------------------------------------------------------------------- */
+
+/* A very soft paper grain, layered on top of any section background so
+   flat color fields read as textured paper rather than a flat corporate
+   panel. Intentionally subtle — should be felt more than seen. */
+.paper-grain {
+  position: relative;
+  isolation: isolate;
+}
+.paper-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.19  0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0.035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 1;
+}
+
+/* Optional second, coarser fiber layer — add alongside .paper-grain (not a
+   replacement) on any single element that needs to read as heavier, more
+   textured cardstock than the sitewide default. Scoped to its own ::after
+   so it never changes the shared .paper-grain look used elsewhere. */
+.paper-grain-heavy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.65;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='nh'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045 0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.24  0 0 0 0 0.14  0 0 0 0 0.13  0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23nh)'/%3E%3C/svg%3E");
+  z-index: 1;
+}
+
+/* A soft, deckled (torn-paper) edge along the bottom of a section, used to
+   separate "pages" of the site the way a magazine spread separates a
+   photo essay from the next feature, instead of a hard ruled line. */
+.deckled-edge-bottom {
+  position: relative;
+}
+.deckled-edge-bottom::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 14px;
+  background-repeat: repeat-x;
+  background-size: 34px 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 14'%3E%3Cpath d='M0 0 Q4 12 8.5 3 T17 4 T25.5 2 T34 6 V14 H0 Z' fill='%23FCFAF5'/%3E%3C/svg%3E");
+}
+
+/* Delicate handwritten annotation, set perfectly straight (no rotation) per
+   art direction: it should read as refined editorial typography with a
+   personal touch, not a tilted scrapbook sticker. */
+.handwritten-note {
+  font-family: var(--font-script);
+  display: inline-block;
+}
+
+/* Scroll-reveal: elements fade + rise gently into place as they enter the
+   viewport. JS (components/ui/ScrollReveal.tsx) toggles .is-visible; if JS
+   never runs (or reduced motion is set) content is still fully visible via
+   the reduced-motion override below and the noscript fallback opacity. */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Gentle hover lift for cards and buttons — a soft invitation to touch,
+   not a bounce. */
+.lift-on-hover {
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.lift-on-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 30px -18px rgba(47, 58, 42, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lift-on-hover:hover {
+    transform: none;
+  }
+}
+
+/* A very slow, gentle drift for small decorative accents (moth wings,
+   florals) — meant to be felt at the edge of vision, never noticed head-on. */
+@keyframes floatDrift {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(1.5deg); }
+}
+.float-gentle {
+  animation: floatDrift 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-gentle {
+    animation: none;
+  }
+}
+
+/* Slow, editorial image zoom on hover for photography placeholders/frames. */
+.zoom-on-hover {
+  overflow: hidden;
+}
+.zoom-on-hover > * {
+  transition: transform 6s ease;
+}
+.zoom-on-hover:hover > * {
+  transform: scale(1.06);
+}
+@media (prefers-reduced-motion: reduce) {
+  .zoom-on-hover > * {
+    transition: none;
+  }
+  .zoom-on-hover:hover > * {
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* 2026.2 refresh: MAIL as the central visual language — physical paper    */
+/* pieces (envelopes, postcards, cards, stamps) instead of generic blobs   */
+/* or icon cards. Used in "What's Inside" and "Choose Your Wildflower      */
+/* Mail". Also a slower float used for the hero envelope animation.        */
+/* ---------------------------------------------------------------------- */
+@keyframes floatDriftSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.float-slow {
+  animation: floatDriftSlow 9s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .float-slow {
+    animation: none;
+  }
+}
+
+/* A physical piece of mail: paper weight, soft layered shadow, gentle
+   lift + tilt on hover/focus so it reads as tactile and clickable without
+   looking like a generic ecommerce card. */
+.mail-piece {
+  position: relative;
+  display: block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 14px 26px -18px rgba(62, 70, 54, 0.4), 0 2px 6px rgba(62, 70, 54, 0.08);
+}
+.mail-piece:hover,
+.mail-piece:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 32px -18px rgba(62, 70, 54, 0.45), 0 3px 8px rgba(62, 70, 54, 0.1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .mail-piece:hover,
+  .mail-piece:focus-visible {
+    transform: none;
+  }
+}
+
+/* A single postage stamp: perforated/scalloped edge on all four sides via
+   a pre-computed clip-path (not a literal photo trace — an original
+   Wildflower Mail interpretation of the reference), plus a very restrained
+   hover: a hair of lift and a 1-2 degree rotation, never an exaggerated
+   tilt. All five subscription stamps share this exact shape/size. */
+.stamp-piece {
+  position: relative;
+  display: block;
+  aspect-ratio: 220 / 258;
+  clip-path: polygon(
+    3.11% 0%, 4.09% 1.13%, 5.07% 1.82%, 6.04% 1.82%, 7.02% 1.13%, 8% 0%, 14.22% 0%, 15.2% 1.13%, 16.18% 1.82%, 17.16% 1.82%, 18.13% 1.13%, 19.11% 0%, 25.33% 0%, 26.31% 1.13%, 27.29% 1.82%, 28.27% 1.82%, 29.24% 1.13%, 30.22% 0%, 36.44% 0%, 37.42% 1.13%, 38.4% 1.82%, 39.38% 1.82%, 40.36% 1.13%, 41.33% 0%, 47.56% 0%, 48.53% 1.13%, 49.51% 1.82%, 50.49% 1.82%, 51.47% 1.13%, 52.44% 0%, 58.67% 0%, 59.64% 1.13%, 60.62% 1.82%, 61.6% 1.82%, 62.58% 1.13%, 63.56% 0%, 69.78% 0%, 70.76% 1.13%, 71.73% 1.82%, 72.71% 1.82%, 73.69% 1.13%, 74.67% 0%, 80.89% 0%, 81.87% 1.13%, 82.84% 1.82%, 83.82% 1.82%, 84.8% 1.13%, 85.78% 0%, 92% 0%, 92.98% 1.13%, 93.96% 1.82%, 94.93% 1.82%, 95.91% 1.13%, 96.89% 0%, 100% 0%, 100% 2.55%, 98.68% 3.35%, 97.86% 4.15%, 97.86% 4.95%, 98.68% 5.75%, 100% 6.55%, 100% 11.64%, 98.68% 12.44%, 97.86% 13.24%, 97.86% 14.04%, 98.68% 14.84%, 100% 15.64%, 100% 20.73%, 98.68% 21.53%, 97.86% 22.33%, 97.86% 23.13%, 98.68% 23.93%, 100% 24.73%, 100% 29.82%, 98.68% 30.62%, 97.86% 31.42%, 97.86% 32.22%, 98.68% 33.02%, 100% 33.82%, 100% 38.91%, 98.68% 39.71%, 97.86% 40.51%, 97.86% 41.31%, 98.68% 42.11%, 100% 42.91%, 100% 48%, 98.68% 48.8%, 97.86% 49.6%, 97.86% 50.4%, 98.68% 51.2%, 100% 52%, 100% 57.09%, 98.68% 57.89%, 97.86% 58.69%, 97.86% 59.49%, 98.68% 60.29%, 100% 61.09%, 100% 66.18%, 98.68% 66.98%, 97.86% 67.78%, 97.86% 68.58%, 98.68% 69.38%, 100% 70.18%, 100% 75.27%, 98.68% 76.07%, 97.86% 76.87%, 97.86% 77.67%, 98.68% 78.47%, 100% 79.27%, 100% 84.36%, 98.68% 85.16%, 97.86% 85.96%, 97.86% 86.76%, 98.68% 87.56%, 100% 88.36%, 100% 93.45%, 98.68% 94.25%, 97.86% 95.05%, 97.86% 95.85%, 98.68% 96.65%, 100% 97.45%, 100% 100%, 96.89% 100%, 95.91% 98.87%, 94.93% 98.18%, 93.96% 98.18%, 92.98% 98.87%, 92% 100%, 85.78% 100%, 84.8% 98.87%, 83.82% 98.18%, 82.84% 98.18%, 81.87% 98.87%, 80.89% 100%, 74.67% 100%, 73.69% 98.87%, 72.71% 98.18%, 71.73% 98.18%, 70.76% 98.87%, 69.78% 100%, 63.56% 100%, 62.58% 98.87%, 61.6% 98.18%, 60.62% 98.18%, 59.64% 98.87%, 58.67% 100%, 52.44% 100%, 51.47% 98.87%, 50.49% 98.18%, 49.51% 98.18%, 48.53% 98.87%, 47.56% 100%, 41.33% 100%, 40.36% 98.87%, 39.38% 98.18%, 38.4% 98.18%, 37.42% 98.87%, 36.44% 100%, 30.22% 100%, 29.24% 98.87%, 28.27% 98.18%, 27.29% 98.18%, 26.31% 98.87%, 25.33% 100%, 19.11% 100%, 18.13% 98.87%, 17.16% 98.18%, 16.18% 98.18%, 15.2% 98.87%, 14.22% 100%, 8% 100%, 7.02% 98.87%, 6.04% 98.18%, 5.07% 98.18%, 4.09% 98.87%, 3.11% 100%, 0% 100%, 0% 97.45%, 1.32% 96.65%, 2.14% 95.85%, 2.14% 95.05%, 1.32% 94.25%, 0% 93.45%, 0% 88.36%, 1.32% 87.56%, 2.14% 86.76%, 2.14% 85.96%, 1.32% 85.16%, 0% 84.36%, 0% 79.27%, 1.32% 78.47%, 2.14% 77.67%, 2.14% 76.87%, 1.32% 76.07%, 0% 75.27%, 0% 70.18%, 1.32% 69.38%, 2.14% 68.58%, 2.14% 67.78%, 1.32% 66.98%, 0% 66.18%, 0% 61.09%, 1.32% 60.29%, 2.14% 59.49%, 2.14% 58.69%, 1.32% 57.89%, 0% 57.09%, 0% 52%, 1.32% 51.2%, 2.14% 50.4%, 2.14% 49.6%, 1.32% 48.8%, 0% 48%, 0% 42.91%, 1.32% 42.11%, 2.14% 41.31%, 2.14% 40.51%, 1.32% 39.71%, 0% 38.91%, 0% 33.82%, 1.32% 33.02%, 2.14% 32.22%, 2.14% 31.42%, 1.32% 30.62%, 0% 29.82%, 0% 24.73%, 1.32% 23.93%, 2.14% 23.13%, 2.14% 22.33%, 1.32% 21.53%, 0% 20.73%, 0% 15.64%, 1.32% 14.84%, 2.14% 14.04%, 2.14% 13.24%, 1.32% 12.44%, 0% 11.64%, 0% 6.55%, 1.32% 5.75%, 2.14% 4.95%, 2.14% 4.15%, 1.32% 3.35%, 0% 2.55%, 0% 0%
+  );
+  box-shadow: 0 10px 22px -14px rgba(62, 70, 54, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stamp-piece:hover,
+.stamp-piece:focus-visible {
+  transform: translateY(-3px) rotate(1deg);
+  box-shadow: 0 16px 28px -14px rgba(62, 70, 54, 0.55);
+}
+/* Pressed/active state — a distinct, momentary "selected" feel on
+   click/tap (scales down slightly, shadow tightens) before the browser
+   navigates to the plan's Stripe checkout link. */
+.stamp-piece:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 0 6px 14px -10px rgba(62, 70, 54, 0.5);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stamp-piece:hover,
+  .stamp-piece:focus-visible,
+  .stamp-piece:active {
+    transform: none;
+  }
+}
+
+/* Realistic-but-restrained layered paper shadow for the "What's Inside"
+   printed insert — reads as a physical sheet resting on the page. */
+.paper-shadow {
+  box-shadow:
+    0 1px 2px rgba(62, 70, 54, 0.06),
+    0 8px 20px -10px rgba(62, 70, 54, 0.22),
+    0 30px 50px -30px rgba(62, 70, 54, 0.28);
+}
+
+/* Torn / deckled paper edges as a clip-path, so a whole stationery card can
+   read as a hand-torn piece of paper rather than a rounded-rectangle card. */
+.torn-top {
+  clip-path: polygon(
+    0% 3%, 4% 0%, 9% 2.5%, 15% 0%, 21% 2%, 28% 0%, 35% 2.5%, 42% 0%,
+    50% 2%, 58% 0%, 65% 2.5%, 72% 0%, 79% 2%, 86% 0%, 92% 2.5%, 100% 0%,
+    100% 100%, 0% 100%
+  );
+}
+.torn-bottom {
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 97%, 94% 100%, 88% 97.5%, 81% 100%, 74% 97%, 67% 100%,
+    60% 97.5%, 53% 100%, 46% 97%, 39% 100%, 32% 97.5%, 25% 100%, 18% 97%, 11% 100%, 4% 97.5%, 0% 100%
+  );
+}
+
+/* A uniform, semicircle-scalloped bottom edge — like a stamp/label torn
+   along its perforation, per the provided vintage-stamp-label reference
+   (straight top/left/right, evenly scalloped bottom). Built with a layered
+   mask instead of clip-path so the scallop count adapts responsively to
+   the element's width rather than stretching a fixed set of points. */
+.scalloped-bottom {
+  --scallop: 22px;
+  -webkit-mask-image:
+    radial-gradient(circle at 50% 0, transparent calc(var(--scallop) / 2 - 1px), #000 calc(var(--scallop) / 2)),
+    linear-gradient(#000, #000);
+  -webkit-mask-size: var(--scallop) calc(var(--scallop) / 2 + 1px), 100% calc(100% - var(--scallop) / 2);
+  -webkit-mask-position: bottom left, top left;
+  -webkit-mask-repeat: repeat-x, no-repeat;
+  mask-image:
+    radial-gradient(circle at 50% 0, transparent calc(var(--scallop) / 2 - 1px), #000 calc(var(--scallop) / 2)),
+    linear-gradient(#000, #000);
+  mask-size: var(--scallop) calc(var(--scallop) / 2 + 1px), 100% calc(100% - var(--scallop) / 2);
+  mask-position: bottom left, top left;
+  mask-repeat: repeat-x, no-repeat;
+}
+
+/* A tiny postage-stamp-style button — perforated look via a dashed inset
+   border and a slight rotation, standing in for a conventional "pill" CTA
+   in the header. */
+.stamp-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-2deg);
+  border: 1.5px dashed rgba(48, 47, 43, 0.4);
+  outline: 4px solid #fcfaf5;
+  outline-offset: -6px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.stamp-button:hover,
+.stamp-button:focus-visible {
+  transform: rotate(0deg) translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stamp-button:hover,
+  .stamp-button:focus-visible {
+    transform: rotate(-2deg);
+  }
+}
