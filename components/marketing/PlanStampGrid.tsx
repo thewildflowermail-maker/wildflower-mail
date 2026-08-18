@@ -32,11 +32,8 @@ export function PlanStampGrid({ plans }: { plans: Plan[] }) {
             className={isLast ? "col-span-2 flex justify-center sm:col-span-1" : ""}
           >
             <div className={`${rotateClass} ${liftClass} relative w-full max-w-[200px]`}>
-              
-               <div className={`${rotateClass} ${liftClass} relative w-full max-w-[200px]`}>
-              
-               <a
-                href={plan.stripeUrl} href={plan.stripeUrl}
+              <a 
+                href={plan.stripeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`stamp-piece paper-grain ${style.bg} flex flex-col items-center justify-center gap-2 px-6 text-center`}
