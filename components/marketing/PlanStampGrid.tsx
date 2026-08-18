@@ -35,6 +35,7 @@ export function PlanStampGrid({ plans }: { plans: Plan[] }) {
               
                <div className={`${rotateClass} ${liftClass} relative w-full max-w-[200px]`}>
               
+               <a
                 href={plan.stripeUrl} href={plan.stripeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
