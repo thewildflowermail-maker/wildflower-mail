@@ -18,7 +18,7 @@ export type Plan = {
 // One card (the middle/best-value plan) is visually promoted with an
 // "olive" fill + "Most Loved" ribbon so there's a clear default choice,
 // matching the "clear CTA" goal without inventing fake urgency copy.
-const FEATURED_INDEX = 2; // "6 Months" — middle of the 5 plans
+const FEATURED_INDEX = 2; // "6 Months" - middle of the 5 plans
 
 // Per-card CTA copy: explicit action verbs tied to what happens next,
 // rather than a repeated generic "Subscribe" on every card.
@@ -35,7 +35,7 @@ function ctaLabel(plan: Plan): string {
 
 /**
  * The five "Choose Your Wildflower Mail" plan cards. No interactive state
- * of its own, so this is a plain server component — ScrollReveal handles
+ * of its own, so this is a plain server component - ScrollReveal handles
  * its own client-side reveal-on-scroll internally.
  */
 export function PlanStampGrid({ plans }: { plans: Plan[] }) {
@@ -84,7 +84,7 @@ export function PlanStampGrid({ plans }: { plans: Plan[] }) {
 
                 {(plan.paperWeight || plan.finish) && (
                   <p className={`mt-2 text-xs ${featured ? "text-ivory/70" : "text-charcoal/55"}`}>
-                    {[plan.paperWeight, plan.finish].filter(Boolean).join(" · ")}
+                    {[plan.paperWeight, plan.finish].filter(Boolean).join(" - ")}
                   </p>
                 )}
 
