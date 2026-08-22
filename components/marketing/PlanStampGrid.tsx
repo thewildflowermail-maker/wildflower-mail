@@ -91,7 +91,7 @@ export function PlanStampGrid({ plans }: { plans: Plan[] }) {
                 <div className="flex-1" />
 
                 
-                  href={plan.stripeUrl}
+                  <a href={plan.stripeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`mt-6 w-full rounded-full px-4 py-3 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
