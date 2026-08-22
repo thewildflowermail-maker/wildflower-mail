@@ -217,7 +217,7 @@ export default function HomePage() {
                   with generous leading — script faces lose legibility fast
                   at small sizes, so this trades a little bit of "note card"
                   intimacy for staying easy to actually read. */}
-              <div className="mt-6 space-y-4 font-script text-xl leading-relaxed text-charcoal/90 sm:text-2xl">
+              <div className="mt-6 space-y-4 font-sans text-base leading-relaxed text-charcoal sm:text-lg">
                 <p>
                   Hi, I&rsquo;m Marie — a mother of two, learning to find myself somewhere between
                   the endless to-do lists, little hands that always need me, and the beautiful
