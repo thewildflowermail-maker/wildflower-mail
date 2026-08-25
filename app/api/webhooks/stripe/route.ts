@@ -5,14 +5,18 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 import { brand } from "@/lib/config/site-config";
 
-// Cloudflare's adapter requires every dynamic route to run on the Edge
-// Runtime — this still works for Stripe signature verification because
-// wrangler.toml enables the nodejs_compat flag, which polyfills the
-// node:crypto functions the Stripe SDK uses under the hood.
-//
 // Route handlers receive the raw body via request.text(), which is required
 // for Stripe signature verification — do not use request.json() here.
-export const runtime = 'edge';
+//
+// This project deploys to Cloudflare Pages via @cloudflare/next-on-pages,
+// which only supports the "edge" runtime (true Node.js runtime is not
+// available there, despite what a "nodejs" declaration might imply).
+// Stripe's synchronous webhooks.constructEvent() depends on Node's built-in
+// crypto module for HMAC verification, which is not genuinely present in
+// that edge environment — so signature checks silently fail even with the
+// correct secret. constructEventAsync() is Stripe's edge/Web-Crypto-
+// compatible equivalent and is what actually works here.
+export const runtime = "edge";
 
 export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
@@ -25,7 +29,7 @@ export async function POST(request: Request) {
 
   let event: Stripe.Event;
   try {
-       event = await stripe.webhooks.constructEventAsync(payload, signature, webhookSecret);
+    event = await stripe.webhooks.constructEventAsync(payload, signature, webhookSecret);
   } catch (err) {
     console.error("Stripe webhook signature verification failed:", err);
     return NextResponse.json({ error: "Invalid signature." }, { status: 400 });
@@ -92,14 +96,40 @@ async function handleCheckoutCompleted(
   supabase: ReturnType<typeof createSupabaseAdminClient>
 ) {
   const metadata = session.metadata || {};
-  const orderType = metadata.order_type;
+
+  // Orders placed through a static Stripe Payment Link (e.g. the plan
+  // cards on the homepage) arrive with empty metadata — Payment Links
+  // only support fixed/static metadata values, not per-customer data like
+  // name/email/address. Stripe still collects that real info itself
+  // though, under customer_details / collected_information, so we fall
+  // back to reading from there whenever the corresponding metadata field
+  // is missing. This keeps the original custom-checkout-form flow (which
+  // sets metadata explicitly) working exactly as before, while also
+  // making Payment Link orders actually get saved.
+  const collectedName = session.customer_details?.name || undefined;
+  const collectedAddress = session.customer_details?.address;
+
+  const fullName = metadata.full_name || collectedName;
+  const email = metadata.email || session.customer_details?.email || undefined;
+  const addressLine1 = metadata.address_line1 || collectedAddress?.line1 || undefined;
+  const addressLine2 = metadata.address_line2 || collectedAddress?.line2 || undefined;
+  const city = metadata.city || collectedAddress?.city || undefined;
+  const state = metadata.state || collectedAddress?.state || undefined;
+  const zip = metadata.zip || collectedAddress?.postal_code || undefined;
+
+  // Payment Links don't carry an order_type either, so default anything
+  // without one to "membership" when it's a recurring subscription (the
+  // Monthly plan) — one-time Payment Link purchases (3/6/12 month plans)
+  // still need order_type set explicitly as Payment Link metadata in
+  // Stripe to be handled correctly; see conversation notes.
+  const orderType = metadata.order_type || (session.mode === "subscription" ? "membership" : undefined);
 
   if (orderType === "membership") {
     const { data: customer } = await supabase
       .from("customers")
       .insert({
-        full_name: metadata.full_name,
-        email: metadata.email,
+        full_name: fullName,
+        email: email,
         stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
         newsletter_consent: metadata.newsletter_consent === "true",
       })
@@ -110,7 +140,7 @@ async function handleCheckoutCompleted(
 
     const { data: recipient } = await supabase
       .from("recipients")
-      .insert({ customer_id: customer.id, full_name: metadata.full_name, is_self: true, reveal_sender: true })
+      .insert({ customer_id: customer.id, full_name: fullName, is_self: true, reveal_sender: true })
       .select()
       .single();
 
@@ -120,11 +150,11 @@ async function handleCheckoutCompleted(
       .from("shipping_addresses")
       .insert({
         recipient_id: recipient.id,
-        address_line1: metadata.address_line1,
-        address_line2: metadata.address_line2 || null,
-        city: metadata.city,
-        state: metadata.state,
-        zip: metadata.zip,
+        address_line1: addressLine1,
+        address_line2: addressLine2 || null,
+        city: city,
+        state: state,
+        zip: zip,
       })
       .select()
       .single();
@@ -139,7 +169,7 @@ async function handleCheckoutCompleted(
         .insert({
           customer_id: customer.id,
           recipient_id: recipient.id,
-          product_id: metadata.product_id,
+          product_id: metadata.product_id || "monthly-membership",
           stripe_subscription_id: subscriptionId,
           status: stripeSubscription.status,
           current_period_end: new Date(stripeSubscription.current_period_end * 1000).toISOString(),
@@ -151,29 +181,29 @@ async function handleCheckoutCompleted(
 
     await supabase.from("orders").insert({
       customer_id: customer.id,
-      product_id: metadata.product_id,
+      product_id: metadata.product_id || "monthly-membership",
       order_type: "membership",
       subscription_id: subscriptionRow?.id || null,
       stripe_checkout_session_id: session.id,
       status: "paid",
     });
 
-    if (metadata.email) {
-      await sendTransactionalEmail("welcome", metadata.email, { firstName: metadata.full_name?.split(" ")[0] });
-      await sendTransactionalEmail("membershipConfirmation", metadata.email, {
-        firstName: metadata.full_name?.split(" ")[0],
-        addressLine1: metadata.address_line1,
-        city: metadata.city,
-        state: metadata.state,
-        zip: metadata.zip,
+    if (email) {
+      await sendTransactionalEmail("welcome", email, { firstName: fullName?.split(" ")[0] || "" });
+      await sendTransactionalEmail("membershipConfirmation", email, {
+        firstName: fullName?.split(" ")[0] || "",
+        addressLine1: addressLine1 || "",
+        city: city || "",
+        state: state || "",
+        zip: zip || "",
       });
     }
 
-    if (metadata.newsletter_consent === "true" && metadata.email) {
+    if (metadata.newsletter_consent === "true" && email) {
       await supabase.from("email_consent").upsert(
         {
-          email: metadata.email,
-          first_name: metadata.full_name?.split(" ")[0],
+          email: email,
+          first_name: fullName?.split(" ")[0],
           marketing_consent: true,
           consent_source: "checkout_opt_in",
           consented_at: new Date().toISOString(),
@@ -185,8 +215,8 @@ async function handleCheckoutCompleted(
     // Internal notification to the business owner.
     await sendTransactionalEmail("internalNewOrderNotification", brand.supportEmail, {
       orderType: "Monthly Membership",
-      customerName: metadata.full_name,
-      customerEmail: metadata.email,
+      customerName: fullName || "",
+      customerEmail: email || "",
       productName: "Monthly Membership",
     });
   }
