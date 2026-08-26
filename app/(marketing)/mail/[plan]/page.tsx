@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { brand, plans } from "@/lib/config/site-config";
+import { MonthlySubscriptionForm } from "@/components/marketing/checkout/MonthlySubscriptionForm";
 
 export function generateStaticParams() {
   return plans.map((plan) => ({ plan: plan.slug }));
@@ -16,13 +17,6 @@ export function generateMetadata({ params }: { params: { plan: string } }): Meta
   };
 }
 
-/**
- * Dedicated page for one "Choose Your Wildflower Mail" option. Clicking a
- * piece of mail on the homepage lands here. This is intentionally a simple
- * placeholder for now — full plan details, pricing, and Stripe checkout for
- * this five-option lineup (Monthly / 3 Months / 6 Months / 1 Year /
- * Gift a Friend) still need to be built out and wired to real Stripe Prices.
- */
 export default function PlanPage({ params }: { params: { plan: string } }) {
   const plan = plans.find((p) => p.slug === params.plan);
   if (!plan) notFound();
@@ -34,20 +28,27 @@ export default function PlanPage({ params }: { params: { plan: string } }) {
           {brand.name}
         </p>
         <h1 className="font-serif text-4xl font-semibold text-olive sm:text-5xl">{plan.name}</h1>
-        <p className="mt-6 text-base leading-relaxed text-charcoal/75">
-          Full details and checkout for this option are coming soon. In the meantime, reach out
-          through our{" "}
-          <Link href="/#contact" className="underline underline-offset-4 hover:text-olive">
-            contact section
-          </Link>{" "}
-          and we&rsquo;ll help you get started.
-        </p>
-        <Link
-          href="/#choose-your-mail"
-          className="mt-9 inline-flex items-center justify-center rounded-sm border border-olive px-8 py-4 text-base font-medium text-olive transition-colors duration-250 hover:bg-olive hover:text-ivory"
-        >
-          ← Back to all options
-        </Link>
+
+        {plan.slug === "monthly-subscription" ? (
+          <MonthlySubscriptionForm />
+        ) : (
+          <>
+            <p className="mt-6 text-base leading-relaxed text-charcoal/75">
+              Full details and checkout for this option are coming soon. In the meantime, reach out
+              through our{" "}
+              <Link href="/#contact" className="underline underline-offset-4 hover:text-olive">
+                contact section
+              </Link>{" "}
+              and we&rsquo;ll help you get started.
+            </p>
+            <Link
+              href="/#choose-your-mail"
+              className="mt-9 inline-flex items-center justify-center rounded-sm border border-olive px-8 py-4 text-base font-medium text-olive transition-colors duration-250 hover:bg-olive hover:text-ivory"
+            >
+              ← Back to all options
+            </Link>
+          </>
+        )}
       </Container>
     </section>
   );
