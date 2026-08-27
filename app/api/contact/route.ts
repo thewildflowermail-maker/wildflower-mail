@@ -4,6 +4,10 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendTransactionalEmail } from "@/lib/resend/send";
 import { brand } from "@/lib/config/site-config";
 
+
+// Cloudflare Pages (via @cloudflare/next-on-pages) only supports the
+// Edge Runtime for API routes -- without this declaration the route can
+// build successfully but fail at request time in production.
 export const runtime = 'edge';
 
 export async function POST(request: Request) {
