@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { checkAdminPassword, createAdminSessionToken, ADMIN_COOKIE_NAME } from "@/lib/admin/auth";
 
+
+// Cloudflare Pages (via @cloudflare/next-on-pages) only supports the
+// Edge Runtime for API routes -- without this declaration the route can
+// build successfully but fail at request time in production.
 export const runtime = 'edge';
 
 export async function POST(request: Request) {
@@ -11,7 +15,7 @@ export async function POST(request: Request) {
   }
 
   const response = NextResponse.json({ ok: true });
-  response.cookies.set(ADMIN_COOKIE_NAME, await createAdminSessionToken(), {
+  response.cookies.set(ADMIN_COOKIE_NAME, createAdminSessionToken(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
