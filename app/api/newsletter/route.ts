@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { newsletterSchema } from "@/lib/validation/schemas";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
+
+// Cloudflare Pages (via @cloudflare/next-on-pages) only supports the
+// Edge Runtime for API routes -- without this declaration the route can
+// build successfully but fail at request time in production.
 export const runtime = 'edge';
 
 /**
